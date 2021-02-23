@@ -1,5 +1,6 @@
 package damnjan.recipe.recipeapp.converters;
 
+import damnjan.recipe.recipeapp.commands.IngredientCommand;
 import damnjan.recipe.recipeapp.commands.RecipeCommand;
 import damnjan.recipe.recipeapp.domain.Category;
 import damnjan.recipe.recipeapp.domain.Recipe;
@@ -7,6 +8,10 @@ import lombok.Synchronized;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
+
+import java.util.Comparator;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 @Component
 public class RecipeToRecipeCommand implements Converter<Recipe, RecipeCommand> {
@@ -50,6 +55,10 @@ public class RecipeToRecipeCommand implements Converter<Recipe, RecipeCommand> {
         if (source.getIngredients() != null && source.getIngredients().size() > 0){
             source.getIngredients()
                     .forEach(ingredient -> command.getIngredients().add(ingredientConverter.convert(ingredient)));
+
+            command.setIngredients(command.getIngredients()
+                    .stream()
+                    .collect(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(IngredientCommand::getId)))));
         }
 
         return command;
