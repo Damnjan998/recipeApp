@@ -4,12 +4,14 @@ import damnjan.recipe.recipeapp.commands.RecipeCommand;
 import damnjan.recipe.recipeapp.converters.RecipeCommandToRecipe;
 import damnjan.recipe.recipeapp.converters.RecipeToRecipeCommand;
 import damnjan.recipe.recipeapp.domain.Recipe;
+import damnjan.recipe.recipeapp.exceptions.NotFoundException;
 import damnjan.recipe.recipeapp.repositories.RecipeRepository;
 import damnjan.recipe.recipeapp.services.RecipeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
@@ -31,7 +33,9 @@ public class RecipeServiceImpl implements RecipeService {
     public Set<Recipe> getRecipes() {
         log.debug("Im in the service");
 
-        return recipeRepository.findAllByOrderById();
+        Set<Recipe> recipeSet = new HashSet<>();
+        recipeRepository.findAll().iterator().forEachRemaining(recipeSet::add);
+        return recipeSet;
     }
 
     @Override
@@ -39,7 +43,7 @@ public class RecipeServiceImpl implements RecipeService {
         Optional<Recipe> recipeOptional = recipeRepository.findById(l);
 
         if (!recipeOptional.isPresent()) {
-            throw new RuntimeException("Recipe Not Found!");
+            throw new NotFoundException("Recipe Not Found! For ID value: " + l.toString());
         }
 
         return recipeOptional.get();
